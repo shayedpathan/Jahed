@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All-in-One News Reward Site</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      /* Background moved to particles-js container */
+      color: #eee; /* Changed body text color to light grey for dark background */
+      min-width: 1024px; /* Minimum width for desktop layout */
+      overflow-x: auto; /* Allow horizontal scroll if content exceeds min-width */
+      overflow-y: auto; /* Allow vertical scrolling */
+      position: relative; /* Needed for absolute positioning of pages */
+    }
+
+    /* Particle container styles */
+    #particles-js {
+      position: fixed; /* Fixed position to cover viewport */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; /* Cover full viewport height */
+      background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%); /* Dark grey gradient */
+      z-index: -1; /* Send it behind everything else */
+      overflow: hidden; /* Prevent scrollbars on the particle layer */
+    }
+
+    /* Ensure content is above particles */
+    .page {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center; /* Center content horizontally */
+      justify-content: flex-start;
+      padding: 20px 40px 40px 40px;
+      opacity: 0;
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Added ease-out for smoother transition */
+      position: absolute; /* Keep absolute positioning for transitions */
+      width: 100%; /* Use 100% width within the body */
+      left: 0;
+      top: 0;
+      z-index: 1; /* Default z-index */
+      background: none; /* Remove background from page, let particles container handle it */
+      min-width: 1024px; /* Match body min-width */
+      box-sizing: border-box; /* Include padding in width/height */
+    }
+    .page.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+      z-index: 2; /* Ensure active page is above inactive and particles */
+    }
+     /* Adjust z-index for stacking context if necessary */
+
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-out; /* Added ease-out */
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Pulse animation for buttons */
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
+        50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5); }
+        100% { transform: scale(1); box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
+    }
+
+
+    .ads {
+      width: 100%;
+      max-width: 640px; /* Adjusted max-width for two 300px ads + gap */
+      margin: 25px auto; /* Center the ads container */
+      display: flex;
+      justify-content: center; /* Center ads if space allows */
+      gap: 40px; /* Increased gap between ads */
+      position: relative;
+      z-index: 3; /* Ensure ads are above pages */
+      box-sizing: border-box; /* Include padding/border in width */
+       flex-wrap: wrap; /* Allow ads to wrap on very small screens, though min-width prevents this */
+    }
+    .ad {
+      background: linear-gradient(145deg, #ffffff, #f8f9fa); /* Keep ad background white */
+      border: 2px solid #e0e0e0;
+      flex: 0 0 auto; /* Prevent flexing, use explicit width */
+      width: 300px; /* Fixed width matching iframe width */
+      height: 250px; /* Fixed height matching iframe height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1em;
+      color: #666;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      padding: 0; /* Removed padding to make card size exactly iframe size */
+      position: relative;
+      overflow: hidden;
+      z-index: 1; /* Ensure ad content is normal z-index within ad div */
+       /* Added subtle glow/scale on hover */
+      transform: scale(1);
+    }
+    .ad:hover {
+      transform: scale(1.02); /* Subtle scale on hover */
+      box-shadow: 0 12px 35px rgba(52, 152, 219, 0.3); /* Blueish glow */
+    }
+    .ad::before {
+      content: 'Advertisement';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(52, 152, 219, 0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7em;
+      font-weight: 600;
+      z-index: 2; /* Ensure label is above ad content/iframe */
+    }
+
+     /* Ensure ad iframe fills the ad container */
+     .ad iframe {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+        border: none;
+     }
+
+    .news-list {
+      width: 100%;
+      max-width: 900px; /* Max width for the news list */
+      margin: 0 auto 20px auto; /* Center the news list */
+      padding: 0;
+      list-style: none;
+      position: relative;
+      z-index: 3; /* Ensure list is above pages */
+    }
+    .news-item {
+      /* --- Changed News Item Background --- */
+      /* Use a dark semi-transparent background blending with the theme */
+      background: rgba(40, 40, 40, 0.9); /* Dark grey with 90% opacity */
+      margin-bottom: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3); /* Increase shadow for contrast */
+      padding: 24px; /* Keep padding inside */
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      /* Use a subtle lighter border */
+      border: 1px solid rgba(200, 200, 200, 0.2);
+      z-index: 1; /* Ensure item content is normal z-index */
+       /* Added subtle glow/scale on hover */
+       transform: scale(1);
+       color: #eee; /* Ensure default text color inside is light */
+    }
+    .news-item:hover {
+      transform: scale(1.01); /* Subtle scale on hover */
+      box-shadow: 0 12px 35px rgba(52, 152, 219, 0.3); /* Blueish glow */
+    }
+    .news-img {
+      width: 100%;
+      height: auto; /* Allow height to adjust with width */
+      object-fit: cover; /* Changed back to cover to ensure image fills area without gaps */
+      max-height: 400px; /* Optional: set a max height if needed */
+      border-radius: 12px;
+      background: #eee; /* Fallback background if image doesn't load */
+      display: block;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .news-img:hover {
+      transform: scale(1.02);
+    }
+    .news-content {
+      width: 100%;
+      max-width: 600px; /* Constrain news text width */
+      text-align: left; /* Align text left */
+    }
+    .news-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff; /* Keep title color white */
+      line-height: 1.4;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Add text shadow for readability */
+    }
+    .news-desc {
+      font-size: 1.05em;
+      color: #ccc; /* Keep description color light grey */
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    .news-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: #3498db;
+      text-decoration: none;
+      font-size: 1em;
+      font-weight: 600;
+      padding: 8px 16px;
+      background: linear-gradient(145deg, #3498db, #2980b9);
+      color: white; /* Ensure text is white on the button */
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .news-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+    }
+    .timer {
+      font-size: 2em;
+      font-weight: 800;
+      margin: 25px auto; /* Center the timer */
+      color: #e74c3c; /* Red color for timer */
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      background: linear-gradient(145deg, #ffffff, #f8f9fa); /* Keep timer background white */
+      padding: 15px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 3; /* Ensure timer is above pages */
+    }
+     .message-text {
+        font-size: 1.5em;
+        font-weight: 600;
+        margin: 30px auto;
+        color: #fff;
+        text-align: center;
+        position: relative;
+        z-index: 3;
+     }
+    .continue-btn, .generate-btn, .reward-btn {
+      margin: 30px auto; /* Center the buttons */
+      padding: 16px 40px;
+      font-size: 1.2em;
+      background: linear-gradient(145deg, #3498db, #2980b9); /* Blue gradient */
+      color: #fff; /* Ensure button text is white */
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      display: block;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+      position: relative;
+      z-index: 3; /* Ensure buttons are above pages */
+    }
+    /* Apply pulse animation when button is showing */
+    .continue-btn.show, .generate-btn.show, .reward-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+      animation: pulse 2s infinite ease-in-out; /* Added pulse animation */
+    }
+    .continue-btn:hover, .generate-btn:hover, .reward-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+       animation: none; /* Stop pulse on hover */
+    }
+
+
+    .logos {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 40px auto 30px auto; /* Center the logos container */
+      position: relative;
+      z-index: 3; /* Ensure logos are above pages */
+    }
+    .logos a {
+      display: inline-block;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffffff, #f8f9fa); /* Keep logo background white */
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255,255,255,0.3);
+      z-index: 1; /* Ensure link content is normal z-index */
+       transform: scale(1); /* Added for consistent transition */
+    }
+    .logos a:hover {
+      transform: scale(1.1); /* Slight scale on hover */
+      box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3); /* Blueish glow */
+    }
+    .logos img {
+      width: 40px;
+      height: 40px;
+    }
+
+     /* No media queries - Desktop only layout */
+
+  </style>
+</head>
+<body>
+
+  <!-- Particles Container -->
+  <div id="particles-js"></div>
+
+   <!-- Error/Message Page (Page 0) -->
+   <section class="page" id="page0" style="display:none;">
+        <div class="message-text" id="messageText"></div>
+         <!-- Optional: Add a button to go home or reload if needed -->
+         <button class="continue-btn" onclick="window.location.href=window.location.origin + window.location.pathname" style="opacity:1; pointer-events: auto; display: block;">Go Home</button>
+   </section>
+
+
+  <!-- Page 1 -->
+  <section class="page" id="page1">
+    <div class="ads">
+      <div class="ad" id="ad1-1">
+        <!-- Ads code remains the same -->
+        <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+      <div class="ad" id="ad1-2">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+    </div>
+    <div class="timer" id="timer1">20</div>
+    <ul class="news-list" id="news1"></ul>
+    <div class="ads">
+      <div class="ad" id="ad1-3">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+      <div class="ad" id="ad1-4">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+    </div>
+    <button class="continue-btn" id="continue1">Continue</button>
+  </section>
+
+  <!-- Page 2 -->
+  <section class="page" id="page2">
+    <div class="ads">
+      <div class="ad" id="ad2-1">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+      <div class="ad" id="ad2-2">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe', /* Corrected format to iframe */
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+    </div>
+    <div class="timer" id="timer2">20</div>
+    <ul class="news-list" id="news2"></ul>
+    <div class="ads">
+      <div class="ad" id="ad2-3">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+      <div class="ad" id="ad2-4">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+    </div>
+    <button class="continue-btn" id="continue2">Continue</button>
+  </section>
+
+  <!-- Page 3 -->
+  <section class="page" id="page3">
+    <div class="ads">
+      <div class="ad" id="ad3-1">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+      <div class="ad" id="ad3-2">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+    </div>
+    <div class="timer" id="timer3">20</div>
+    <ul class="news-list" id="news3"></ul>
+    <div class="ads">
+      <div class="ad" id="ad3-3">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+      <div class="ad" id="ad3-4">
+         <script type="text/javascript">
+         atOptions = {
+          'key' : '64644346e9dd684188d23292bb0eb61a',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+         };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/64644346e9dd684188d23292bb0eb61a/invoke.js"></script>
+      </div>
+    </div>
+    <button class="continue-btn" id="continue3">Continue</button>
+  </section>
+
+  <!-- Page 4 (Reward) -->
+  <section class="page" id="page4">
+    <!-- Social Media Logos (kept as static for simplicity based on request) -->
+    <div class="logos">
+      <a href="https://www.youtube.com/" target="_blank" title="YouTube">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" style="width:36px;height:36px;">
+      </a>
+      <a href="https://t.me/" target="_blank" title="Telegram">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" style="width:36px;height:36px;">
+      </a>
+    </div>
+    <button class="generate-btn" id="generateBtn">Generate Reward</button> <!-- Button text changed slightly -->
+    <div class="timer" id="reward-timer" style="display:none;">15</div>
+    <button class="reward-btn" id="rewardBtn" style="display:none;">Get Reward Link</button> <!-- Button text changed slightly -->
+     <div class="message-text" id="rewardMessage" style="display:none; font-size: 1em; margin-top: 10px; color: #e74c3c;"></div>
+  </section>
+
+  <!-- Particles.js Library -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    // Initialize particles.js when the window loads
+    window.onload = function() {
+      particlesJS('particles-js', {
+        "particles": {
+          "number": {
+            "value": 80,
+            "density": {
+              "enable": true,
+              "value_area": 800
+            }
+          },
+          "color": {
+            "value": "#aaaaaa" /* Particle color (light grey) */
+          },
+          "shape": {
+            "type": "circle",
+            "stroke": {
+              "width": 0,
+              "color": "#000000"
+            },
+            "polygon": {
+              "nb_sides": 5
+            }
+          },
+          "opacity": {
+            "value": 0.5,
+            "random": false,
+            "anim": {
+              "enable": false,
+              "speed": 1,
+              "opacity_min": 0.1,
+              "sync": false
+            }
+          },
+          "size": {
+            "value": 3,
+            "random": true,
+            "anim": {
+              "enable": false,
+              "speed": 40,
+              "size_min": 0.1,
+              "sync": false
+            }
+          },
+          "line_linked": {
+            "enable": true,
+            "distance": 150,
+            "color": "#888888", /* Link color (medium grey) */
+            "opacity": 0.4,
+            "width": 1
+          },
+          "move": {
+            "enable": true,
+            "speed": 3,
+            "direction": "none",
+            "random": false,
+            "straight": false,
+            "out_mode": "out",
+            "bounce": false,
+            "attract": {
+              "enable": false,
+              "rotateX": 600,
+              "rotateY": 1200
+            }
+          }
+        },
+        "interactivity": {
+          "detect_on": "canvas",
+          "events": {
+            "onhover": {
+              "enable": true,
+              "mode": "grab" /* Change mode if needed (e.g., "repulse") */
+            },
+            "onclick": {
+              "enable": true,
+              "mode": "push" /* Change mode if needed (e.g., "bubble") */
+            },
+            "resize": true
+          },
+          "modes": {
+            "grab": {
+              "distance": 140,
+              "line_linked": {
+                "opacity": 1
+              }
+            },
+            "bubble": {
+              "distance": 400,
+              "size": 40,
+              "duration": 2,
+              "opacity": 8,
+              "speed": 3
+            },
+            "repulse": {
+              "distance": 200,
+              "duration": 0.4
+            },
+            "push": {
+              "particles_nb": 4
+            },
+            "remove": {
+              "particles_nb": 2
+            }
+          }
+        },
+        "retina_detect": true
+      });
+    };
+  </script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    // <<< IMPORTANT: REPLACE WITH YOUR ACTUAL FIREBASE CONFIG >>>
+    // Find this in your Firebase Project Settings -> General -> Your apps
+    const firebaseConfig = {
+      apiKey: "AIzaSyBXdhX1UTNoX4DUVs_ui4Vo-3ErxM39CGI", // <-- Replace with your API Key
+      authDomain: "earn-65905.firebaseapp.com", // <-- Replace with your Auth Domain
+      databaseURL: "https://earn-65905-default-rtdb.firebaseio.com", // <-- Replace with your Database URL
+      projectId: "earn-65905", // <-- Replace with your Project ID
+      storageBucket: "earn-65905.firebasestorage.app", // <-- Replace with your Storage Bucket
+      messagingSenderId: "268248521775", // <-- Replace with your Messaging Sender ID
+      appId: "1:268248521775:web:e8e89a598278521f137ada", // <-- Replace with your App ID
+      measurementId: "G-LK70GCZTJ2" // <-- Replace with your Measurement ID (Optional)
+    };
+    // <<< END OF FIREBASE CONFIG SECTION >>>
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- Get Link ID from URL ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const linkId = urlParams.get('id'); // Get the 'id' parameter from the URL (e.g., ?id=-Nc...)
+
+    // --- Page State ---
+    let currentPage = 0; // Start at page 0 for initial check
+    const totalPages = 4; // Including the initial check/error page (page0)
+
+    let targetRewardUrl = null; // This will store the final destination URL fetched from Firebase
+
+    // --- Helper to show a specific page ---
+    function showPage(n) {
+      for (let i = 0; i <= totalPages; i++) { // Loop from 0 to totalPages
+        const page = document.getElementById('page' + i);
+        if (page) { // Check if the page element exists
+             if (i === n) {
+                page.classList.add('active', 'fade-in');
+                page.style.display = 'flex';
+              } else {
+                page.classList.remove('active', 'fade-in');
+                page.style.display = 'none';
+              }
+        }
+      }
+      currentPage = n;
+      window.scrollTo(0,0); // Scroll to top on page change
+    }
+
+    // --- Show Error Page ---
+    function showError(message) {
+        const messageEl = document.getElementById('messageText');
+        messageEl.textContent = message;
+        showPage(0); // Show the dedicated message/error page
+         console.error("Displaying Error:", message);
+    }
+
+    // --- Initial Check: Validate Link ID and Fetch Target URL ---
+    function checkLinkIdAndFetchTarget() {
+        if (!linkId) {
+            showError("Error: No link ID found in the URL. Please use a valid link from Telegram.");
+            return; // Stop the process
+        }
+        // Basic validation: Firebase push keys are strings, usually starting with '-'
+        if (typeof linkId !== 'string' || linkId.length < 5 || !linkId.startsWith('-')) { // Added minimum length check
+             showError("Error: Invalid link ID format.");
+             return; // Stop the process
+        }
+
+         // Attempt to fetch the link details from Firebase
+         console.log("Fetching link data for ID:", linkId);
+         // Use .once('value') for a single read, not a listener with .on()
+         db.ref('shortenedLinks/' + linkId).once('value').then(snap => {
+             const linkData = snap.val();
+             if (linkData && linkData.targetUrl && typeof linkData.targetUrl === 'string' && linkData.targetUrl.startsWith('http')) {
+                 targetRewardUrl = linkData.targetUrl; // Store the fetched target URL
+                 console.log("Link data fetched successfully. Target URL:", targetRewardUrl);
+                 showPage(1); // Proceed to the first news page
+                 setupPage(1); // Setup the first page
+             } else {
+                 // Link ID exists but data is missing or invalid
+                 showError("Error: Link not found or target URL is invalid.");
+                 console.error("Link data invalid or missing for ID:", linkId, linkData);
+             }
+         }).catch(error => {
+             // Firebase fetch error
+             showError("Error fetching link data. Please check your internet connection or try again later.");
+             console.error("Firebase fetch error for ID", linkId, ":", error);
+         });
+    }
+
+
+    // --- GNews API ---
+    // NOTE: This API Key is exposed client-side. For security, consider a backend proxy
+    // if you need to protect your API key or if rate limits are strict.
+    const GNEWS_API_KEY = 'fb402f356f0b9092aec4415edc44a1cc';
+    const GNEWS_BASE = 'https://gnews.io/api/v4/top-headlines';
+    // For demo: use different topics for each page
+    const NEWS_TOPICS = ['world', 'business', 'technology'];
+
+    // --- News Fetching ---
+    async function fetchNews(pageNum, topic) {
+      const url = `${GNEWS_BASE}?topic=${topic}&lang=en&max=10&apikey=${GNEWS_API_KEY}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const newsList = document.getElementById('news' + pageNum);
+        newsList.innerHTML = ''; // Clear previous news
+        if (data.articles && data.articles.length) {
+          data.articles.forEach(article => {
+            // Use article.image if available, otherwise fallback
+            const imgSrc = article.image && article.image !== 'None' ? article.image : 'https://via.placeholder.com/900x600?text=No+Image+Available'; // Use a larger placeholder and check for 'None'
+            const li = document.createElement('li');
+            li.className = 'news-item';
+            li.innerHTML = `
+              <img class="news-img" src="${imgSrc}" alt="${article.title}" loading="lazy">
+              <div class="news-content">
+                <div class="news-title">${article.title}</div>
+                <div class="news-desc">${article.description || ''}</div>
+                <a class="news-link" href="${article.url}" target="_blank" rel="noopener noreferrer">Read more</a>
+              </div>
+            `;
+            newsList.appendChild(li);
+          });
+        } else {
+          newsList.innerHTML = '<li class="news-item" style="text-align: center; padding: 20px;">No news found for this topic.</li>'; /* Center placeholder text */
+        }
+      } catch (e) {
+        console.error("Failed to fetch news:", e);
+        document.getElementById('news' + pageNum).innerHTML = '<li class="news-item" style="text-align: center; padding: 20px;">Failed to load news. Please try again later.</li>'; /* Center error text */
+      }
+    }
+
+    // --- Timer Logic ---
+    function startTimer(timerId, btnId, seconds, cb) {
+      const timerEl = document.getElementById(timerId);
+      const btn = document.getElementById(btnId);
+      // Hide button and show timer initially
+      btn.classList.remove('show');
+      btn.style.opacity = 0;
+      btn.style.pointerEvents = 'none';
+      btn.style.animation = 'none'; // Stop pulse animation
+      timerEl.style.display = ''; // Show timer
+      let t = seconds;
+      timerEl.textContent = t;
+      const interval = setInterval(() => {
+        t--;
+        timerEl.textContent = t;
+        if (t <= 0) {
+          clearInterval(interval);
+          timerEl.style.display = 'none'; // Hide timer
+          // Show button
+          btn.classList.add('show');
+          btn.style.opacity = 1;
+          btn.style.pointerEvents = 'auto';
+          btn.style.animation = 'pulse 2s infinite ease-in-out'; // Start pulse animation
+          if (cb) cb(); // Callback function if provided
+        }
+      }, 1000);
+    }
+
+    // --- Page Logic ---
+    function setupPage(pageNum) {
+      // Fetch news for the current page's topic
+      // Adjust time here if you want longer/shorter timers
+      const timerDuration = 20; // Seconds
+      fetchNews(pageNum, NEWS_TOPICS[pageNum-1] || 'world'); // Default to 'world' if topic is undefined
+      // Start the timer for the continue button
+      startTimer('timer'+pageNum, 'continue'+pageNum, timerDuration);
+      const btn = document.getElementById('continue'+pageNum);
+      // Remove existing click listener to prevent duplicates
+      btn.onclick = null;
+      btn.onclick = () => {
+        if (pageNum < 3) { // Pages 1, 2 proceed to the next news page
+          showPage(pageNum+1); // Go to the next page
+          setupPage(pageNum+1); // Setup the next page
+        } else if (pageNum === 3) { // Page 3 proceeds to the reward page
+          showPage(4); // Go to the reward page
+          setupRewardPage(); // Setup the reward page
+        }
+        // window.scrollTo(0,0); // Scroll to top - done in showPage
+      };
+    }
+
+    // --- Reward Page Logic ---
+    function setupRewardPage() {
+      // Static social media links (can be removed or made dynamic if needed)
+      // If you want Admin to control these, they need to be stored in Firebase too.
+      // document.getElementById('yt-link').href = 'https://www.youtube.com/';
+      // document.getElementById('tg-link').href = 'https://t.me/';
+
+
+      const genBtn = document.getElementById('generateBtn');
+      const timerEl = document.getElementById('reward-timer');
+      const rewardBtn = document.getElementById('rewardBtn');
+      const rewardMessageEl = document.getElementById('rewardMessage');
+
+      // Reset display states
+      genBtn.classList.add('show');
+      genBtn.style.opacity = 1;
+      genBtn.style.pointerEvents = 'auto';
+      genBtn.style.animation = 'pulse 2s infinite ease-in-out'; // Start pulse animation
+      timerEl.style.display = 'none';
+      rewardBtn.style.display = 'none';
+      rewardBtn.classList.remove('show');
+      rewardBtn.style.animation = 'none'; // Ensure no pulse animation
+      rewardMessageEl.style.display = 'none'; // Hide message initially
+
+      // Remove existing click listener from Generate button
+      genBtn.onclick = null;
+      genBtn.onclick = () => {
+        // Check if we successfully fetched the target URL based on the ID during initial load
+        if (!targetRewardUrl || !targetRewardUrl.startsWith('http')) {
+            rewardMessageEl.textContent = "Error: Target link not available for this ID.";
+            rewardMessageEl.style.display = '';
+             console.error("Target URL is missing or invalid when clicking Generate:", targetRewardUrl);
+            // Keep generate button clickable to indicate user needs to retry/check link
+            return; // Do not start timer if no target URL
+        }
+
+        genBtn.classList.remove('show');
+        genBtn.style.opacity = 0;
+        genBtn.style.pointerEvents = 'none';
+        genBtn.style.animation = 'none'; // Stop pulse animation
+        timerEl.style.display = ''; // Show reward timer
+        rewardMessageEl.style.display = 'none'; // Hide messages during timer
+
+        // Start timer for waiting before getting the reward link
+        // Adjust timer here if you want longer/shorter timer on reward page
+        const rewardTimerDuration = 15; // Seconds
+        startTimer('reward-timer', 'rewardBtn', rewardTimerDuration, () => {
+           // Once timer finishes, show the Get Reward button
+            rewardBtn.textContent = 'Get Reward Link';
+            rewardBtn.style.display = '';
+            rewardBtn.classList.add('show');
+            rewardBtn.style.opacity = 1;
+            rewardBtn.style.pointerEvents = 'auto';
+            rewardBtn.style.animation = 'pulse 2s infinite ease-in-out'; // Start pulse animation on reward button
+            rewardMessageEl.style.display = 'none'; // Ensure message is hidden
+        });
+      };
+
+      // Remove existing click listener from Get Reward button
+      rewardBtn.onclick = null;
+      rewardBtn.onclick = () => {
+        // Check if we have a valid target URL to redirect to
+        if (targetRewardUrl && targetRewardUrl.startsWith('http')) {
+          console.log("Redirecting to final target URL:", targetRewardUrl); // Log the final URL
+          window.open(targetRewardUrl, '_blank'); // Open the final destination URL in a new tab
+
+          // Optional: Disable button after clicking
+          // rewardBtn.style.animation = 'none';
+          // rewardBtn.style.pointerEvents = 'none';
+          // rewardBtn.style.opacity = 0.5;
+
+           // Optional: Show success message
+          rewardMessageEl.textContent = "Redirecting...";
+          rewardMessageEl.style.color = '#2ecc71'; // Green color
+          rewardMessageEl.style.display = '';
+
+        } else {
+            console.warn("Target reward URL is not available or invalid:", targetRewardUrl);
+            rewardMessageEl.textContent = "Error: Target link is missing or invalid.";
+            rewardMessageEl.style.color = '#e74c3c'; // Red color
+            rewardMessageEl.style.display = '';
+            // Re-enable generate button to potentially retry fetching (if needed)
+             genBtn.classList.add('show');
+             genBtn.style.opacity = 1;
+             genBtn.style.pointerEvents = 'auto';
+             genBtn.style.animation = 'pulse 2s infinite ease-in-out';
+             rewardBtn.style.display = 'none'; // Hide reward button
+             timerEl.style.display = 'none'; // Hide timer
+        }
+      };
+    }
+
+
+    // --- Start App ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Particle initialization is handled by window.onload
+      checkLinkIdAndFetchTarget(); // Start by checking the link ID in the URL
+    });
+  </script>
+</body>
+</html>

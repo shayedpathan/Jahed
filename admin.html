@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --card: #fff;
+      --text: #222;
+      --primary: #1976d2;
+      --danger: #d32f2f;
+      --border: #e0e0e0;
+      --input: #f1f3f6;
+      --icon-bg: #f1f3f6;
+      --shadow: 0 2px 12px #0001;
+    }
+    [data-theme="dark"] {
+      --bg: #181c22;
+      --card: #23272f;
+      --text: #f7f7f7;
+      --primary: #90caf9;
+      --danger: #ef5350;
+      --border: #23272f;
+      --input: #23272f;
+      --icon-bg: #23272f;
+      --shadow: 0 2px 12px #0003;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', Arial, sans-serif;
+      transition: background 0.3s, color 0.3s;
+    }
+    .center {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px; /* Add padding for smaller screens */
+      box-sizing: border-box;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 36px 32px 32px 32px;
+      min-width: 340px;
+      max-width: 98vw; /* Allow card to be slightly wider than 340px */
+      width: 100%; /* Make card take full width up to max-width */
+      margin: 24px 0;
+      border: 1px solid var(--border);
+      transition: background 0.3s, color 0.3s;
+    }
+    .card h2 {
+      margin-top: 0;
+      font-weight: 600;
+      font-size: 1.5em;
+      letter-spacing: 0.01em;
+    }
+     .card h3 {
+        margin-top: 25px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        font-size: 1.2em;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 5px;
+     }
+    .input-group {
+      margin-bottom: 22px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 1em;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+      font-size: 1em;
+      outline: none;
+      transition: border 0.2s;
+      box-sizing: border-box; /* Include padding in input width */
+    }
+     .input-group input[readonly] {
+        background: var(--icon-bg); /* Grey out readonly input */
+        cursor: text;
+     }
+    .input-group input:focus {
+      border: 1.5px solid var(--primary);
+    }
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 28px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    .btn.danger {
+      background: var(--danger);
+    }
+     .btn.small {
+        padding: 6px 12px;
+        font-size: 0.9em;
+        margin-top: 0;
+     }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .logout-btn {
+      float: right;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 18px;
+      font-size: 0.98em;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: -8px;
+      margin-bottom: 12px;
+    }
+    .toggle-theme {
+      float: left;
+      background: var(--icon-bg);
+      color: var(--text);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      cursor: pointer;
+      margin-top: -8px;
+      margin-bottom: 12px;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    /* Remove preview section styles as they are not needed anymore */
+    /*
+    .preview { ... }
+    .preview a { ... }
+    .preview-icon { ... }
+    .preview-icon img { ... }
+    */
+    .status {
+      margin-top: 10px;
+      font-size: 0.98em;
+      color: var(--primary);
+      min-height: 18px;
+    }
+     /* Link List Styles */
+     #links-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+     }
+     #links-list li {
+        background: var(--input);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        word-break: break-all; /* Break long URLs */
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+     }
+     #links-list li strong {
+        font-size: 1.1em;
+        color: var(--primary);
+     }
+      #links-list li .link-text {
+          font-size: 0.95em; /* Make link text slightly smaller */
+      }
+     #links-list li .link-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 5px;
+        align-items: center;
+     }
+      #links-list li .link-actions button {
+        margin-top: 0; /* Remove margin from button */
+      }
+      #links-list li .copy-status {
+        font-size: 0.8em;
+        color: green;
+        margin-left: 5px;
+        min-width: 80px; /* Reserve space */
+      }
+
+
+    @media (max-width: 500px) {
+      .card { min-width: 0; padding: 18px 4vw 18px 4vw; }
+       .input-group button {
+         display: block; /* Stack buttons on small screens */
+         width: 100%;
+         margin-right: 0;
+         margin-bottom: 10px;
+       }
+        .input-group button:last-child {
+            margin-bottom: 0;
+        }
+         #links-list li .link-actions {
+            flex-direction: column; /* Stack actions */
+            align-items: flex-start;
+            gap: 5px;
+         }
+          #links-list li .link-actions button,
+          #links-list li .link-actions .copy-status {
+            margin: 0; /* Reset margins */
+          }
+    }
+  </style>
+</head>
+<body>
+  <div class="center">
+    <!-- Login Card -->
+    <div class="card" id="login-card" style="display:block;">
+      <h2>Admin Login</h2>
+      <!--
+        !!! SECURITY WARNING !!!
+        Hardcoded credentials (J@HED / 786) are HIGHLY INSECURE for production.
+        Anyone viewing your page source can see them.
+        Replace this section with proper Firebase Authentication for security.
+      -->
+      <form id="login-form" autocomplete="off">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required autocomplete="off">
+        </div>
+        <button class="btn" type="submit">Login</button>
+        <div class="status" id="login-status"></div>
+      </form>
+    </div>
+
+    <!-- Admin Dashboard Card -->
+    <div class="card" id="admin-card" style="display:none;">
+      <button class="toggle-theme" id="themeBtn" title="Toggle dark/light mode">🌙</button>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+      <h2>Admin Dashboard</h2>
+
+      <h3>Add New Link</h3>
+      <div class="input-group">
+          <label for="target-url-input">Final Destination URL (Mediafire/Drive, etc.)</label>
+          <input type="url" id="target-url-input" placeholder="https://mediafire.com/..." required>
+          <button class="btn" type="button" id="add-link-btn">Add Link</button>
+      </div>
+      <div class="status" id="admin-status"></div>
+
+      <h3>Existing Links</h3>
+      <ul id="links-list">
+        <!-- Links will be loaded here by JavaScript -->
+        <li>Loading links...</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    // <<< IMPORTANT: REPLACE WITH YOUR ACTUAL FIREBASE CONFIG >>>
+    // Find this in your Firebase Project Settings -> General -> Your apps
+    const firebaseConfig = {
+      apiKey: "AIzaSyBXdhX1UTNoH4DUVs_ui4Vo-3ErxM39CGI", // <-- Replace with your API Key
+      authDomain: "earn-65905.firebaseapp.com", // <-- Replace with your Auth Domain
+      databaseURL: "https://earn-65905-default-rtdb.firebaseio.com", // <-- Replace with your Database URL
+      projectId: "earn-65905", // <-- Replace with your Project ID
+      storageBucket: "earn-65905.firebasestorage.app", // <-- Replace with your Storage Bucket
+      messagingSenderId: "268248521775", // <-- Replace with your Messaging Sender ID
+      appId: "1:268248521775:web:e8e89a598278521f137ada", // <-- Replace with your App ID
+      measurementId: "G-LK70GCZTJ2" // <-- Replace with your Measurement ID (Optional)
+    };
+    // <<< END OF FIREBASE CONFIG SECTION >>>
+
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- Theme Toggle ---
+    const themeBtn = document.getElementById('themeBtn');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('admin_theme', theme);
+      themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    themeBtn.onclick = () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      setTheme(current === 'light' ? 'dark' : 'light');
+    };
+    (function() {
+      const saved = localStorage.getItem('admin_theme') || 'light';
+      setTheme(saved);
+    })();
+
+    // --- Login Logic ---
+    const loginCard = document.getElementById('login-card');
+    const adminCard = document.getElementById('admin-card');
+    const loginForm = document.getElementById('login-form');
+    const loginStatus = document.getElementById('login-status');
+    const LOGGED_KEY = 'admin_logged_in';
+    function showAdmin() {
+      loginCard.style.display = 'none';
+      adminCard.style.display = 'block';
+    }
+    function showLogin() {
+      loginCard.style.display = 'block';
+      adminCard.style.display = 'none';
+    }
+    function checkLogin() {
+      if (localStorage.getItem(LOGGED_KEY) === 'yes') {
+        showAdmin();
+        setupAdminDashboard(); // Setup dashboard after login
+      } else {
+        showLogin();
+      }
+    }
+    loginForm.onsubmit = function(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+       // <<< WARNING: HARDCODED CREDENTIALS - CHANGE THIS FOR PRODUCTION! >>>
+       // This is highly insecure for a real application. Implement Firebase Authentication instead.
+      if (u === 'J@HED' && p === '786') { // Replace 'J@HED' and '786' with your desired credentials
+        localStorage.setItem(LOGGED_KEY, 'yes');
+        loginStatus.textContent = '';
+        showAdmin();
+        setupAdminDashboard(); // Setup dashboard after successful login
+      } else {
+        loginStatus.textContent = 'Invalid credentials.';
+      }
+    };
+    document.getElementById('logoutBtn').onclick = function() {
+      localStorage.removeItem(LOGGED_KEY);
+      showLogin();
+      loginForm.reset();
+      loginStatus.textContent = '';
+      // Stop listening for link changes when admin logs out
+      // Pass the function reference used with .on()
+      db.ref('shortenedLinks').off('value', loadLinks);
+    };
+
+    // --- Admin Dashboard Logic ---
+    const targetUrlInput = document.getElementById('target-url-input');
+    const addLinkBtn = document.getElementById('add-link-btn');
+    const adminStatus = document.getElementById('admin-status');
+    const linksList = document.getElementById('links-list');
+
+    // <<< IMPORTANT: SET THIS TO YOUR PUBLISHED USER.HTML URL >>>
+    // After deploying to GitHub Pages, get the FULL public URL of your user.html file.
+    // It will look something like: https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPOSITORY_NAME/user.html
+    // Replace the string below with that URL.
+    const userPageBaseUrl = 'YOUR_PUBLISHED_USER_HTML_URL_HERE'; // <-- REPLACE THIS STRING!
+    // <<< END OF IMPORTANT SECTION >>>
+
+
+    // Check if the base URL is configured before allowing link adding
+    const isUserPageUrlConfigured = userPageBaseUrl !== 'YOUR_PUBLISHED_USER_HTML_URL_HERE' && userPageBaseUrl.startsWith('http');
+     if (!isUserPageUrlConfigured) {
+         adminStatus.textContent = "Error: User page URL is not configured in the code. Cannot add links. Edit admin.html.";
+         addLinkBtn.disabled = true; // Disable adding links if not configured
+         console.error("User page URL is not configured! Please update userPageBaseUrl in admin.html");
+     }
+
+
+    function setupAdminDashboard() {
+        // Load existing links
+        // Only attempt to load links if the user page URL is configured
+        if (isUserPageUrlConfigured) {
+             loadLinks();
+             addLinkBtn.onclick = addLink; // Set click handler only if configured
+             addLinkBtn.disabled = false; // Ensure button is enabled
+        } else {
+            linksList.innerHTML = '<li>User page URL is not configured. Links cannot be loaded or added. Edit admin.html.</li>';
+            addLinkBtn.disabled = true; // Ensure button is disabled
+        }
+
+
+        // Optional: Save draft of the input field
+         targetUrlInput.value = localStorage.getItem('draft_target_url') || '';
+         targetUrlInput.addEventListener('input', () => {
+             localStorage.setItem('draft_target_url', targetUrlInput.value);
+         });
+    }
+
+
+    // --- Link Management ---
+    function addLink() {
+        // Ensure the user page URL is configured before adding
+        if (!isUserPageUrlConfigured) {
+             adminStatus.textContent = "Error: User page URL is not configured. Cannot add link.";
+             console.error("Attempted to add link when userPageBaseUrl is not configured.");
+             setTimeout(() => adminStatus.textContent = '', 3000);
+             return;
+        }
+
+        const targetUrl = targetUrlInput.value.trim();
+        if (!targetUrl || !targetUrl.startsWith('http')) {
+            adminStatus.textContent = 'Please enter a valid URL starting with http(s).';
+            setTimeout(() => adminStatus.textContent = '', 3000);
+            return;
+        }
+
+        adminStatus.textContent = 'Adding link...';
+        addLinkBtn.disabled = true;
+
+        // Use push() to generate a unique key under the 'shortenedLinks' node
+        db.ref('shortenedLinks').push({
+            targetUrl: targetUrl,
+            createdAt: firebase.database.ServerValue.TIMESTAMP // Add a timestamp for sorting/tracking
+        }).then(() => {
+            adminStatus.textContent = 'Link added successfully!';
+            targetUrlInput.value = ''; // Clear input after successful add
+            localStorage.removeItem('draft_target_url'); // Clear draft
+            addLinkBtn.disabled = false;
+            // loadLinks will update the list automatically due to .on('value') listener
+            setTimeout(() => adminStatus.textContent = '', 3000); // Clear status after 3s
+        }).catch(error => {
+            adminStatus.textContent = 'Error adding link: ' + error.message;
+            console.error("Firebase add error:", error);
+            addLinkBtn.disabled = false;
+            setTimeout(() => adminStatus.textContent = '', 5000); // Clear status after 5s
+        });
+    }
+
+    function deleteLink(key) {
+        if (!confirm("Are you sure you want to delete this link (ID: " + key + ")?")) {
+            return;
+        }
+
+        adminStatus.textContent = 'Deleting link ' + key + '...';
+        db.ref('shortenedLinks/' + key).remove().then(() => {
+            adminStatus.textContent = 'Link deleted successfully!';
+             // loadLinks will update the list automatically
+            setTimeout(() => adminStatus.textContent = '', 3000);
+        }).catch(error => {
+            adminStatus.textContent = 'Error deleting link: ' + error.message;
+             console.error("Firebase delete error:", error);
+            setTimeout(() => adminStatus.textContent = '', 5000);
+        });
+    }
+
+    function copyLink(text, statusEl) {
+        navigator.clipboard.writeText(text).then(() => {
+            statusEl.textContent = 'Copied!';
+            setTimeout(() => statusEl.textContent = '', 2000);
+        }).catch(err => {
+            statusEl.textContent = 'Failed to copy!';
+            console.error('Could not copy text: ', err);
+        });
+    }
+
+    // --- Load and Display Links ---
+    // This function will also serve as the callback for the real-time listener
+    function loadLinks() {
+        // Do not clear status here if it's showing configuration error
+        if (isUserPageUrlConfigured) {
+             adminStatus.textContent = 'Loading links...';
+        }
+         linksList.innerHTML = '<li>Loading links...</li>'; // Show loading state
+
+        // Use .on('value') to listen for real-time updates to the 'shortenedLinks' node
+        // This will update the list automatically whenever a link is added, changed, or removed.
+        db.ref('shortenedLinks').orderByChild('createdAt').on('value', snap => {
+            const links = snap.val();
+            linksList.innerHTML = ''; // Clear list
+
+            if (!links) {
+                linksList.innerHTML = '<li>No links added yet.</li>';
+                // Do not clear status if it's showing configuration error
+                if (isUserPageUrlConfigured) {
+                     adminStatus.textContent = 'No links found.';
+                     setTimeout(() => adminStatus.textContent = '', 2000);
+                }
+                return;
+            }
+
+            // Convert object of links into a sortable array of items by key (default Firebase push order)
+            // If orderByChild('createdAt') is used, they should already be sorted by timestamp
+            const linkItems = Object.keys(links).map(key => ({
+                key: key,
+                ...links[key]
+            })).reverse(); // Reverse to show newest first if using default key order or timestamp order
+
+            // Optional: Client-side sort if orderByChild doesn't suffice or isn't used
+            // linkItems.sort((a, b) => b.createdAt - a.createdAt); // Sort descending by timestamp
+
+
+            linkItems.forEach(item => {
+                // Construct the full URL for the user page, including the unique ID parameter
+                // This is where userPageBaseUrl is used.
+                const fullUserLink = `${userPageBaseUrl}?id=${item.key}`;
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <strong>Target:</strong> <a href="${item.targetUrl}" target="_blank" rel="noopener noreferrer">${item.targetUrl}</a><br>
+                    <span class="link-text"><strong>Share Link:</strong> ${fullUserLink}</span><br>
+                    <div class="link-actions">
+                         <button class="btn danger small" data-key="${item.key}" data-action="delete">Delete</button>
+                         <button class="btn small" data-link="${fullUserLink}" data-action="copy">Copy Link</button>
+                         <span class="copy-status"></span>
+                    </div>
+                `;
+
+                // Add event listeners using event delegation or directly
+                li.querySelector('[data-action="delete"]').onclick = () => deleteLink(item.key);
+                 li.querySelector('[data-action="copy"]').onclick = (e) => {
+                     const linkToCopy = e.target.getAttribute('data-link');
+                     const statusSpan = e.target.nextElementSibling; // Get the status span next to the button
+                     copyLink(linkToCopy, statusSpan);
+                 };
+
+                linksList.appendChild(li);
+            });
+
+             // Only update status if no configuration error is shown
+             if (isUserPageUrlConfigured) {
+                 adminStatus.textContent = `${linkItems.length} links loaded.`;
+                 // Don't clear status immediately, wait a bit
+                 setTimeout(() => adminStatus.textContent = '', 2000);
+             }
+
+
+        }, error => {
+            // Error handling for the listener
+             // Only update status if no configuration error is shown
+            if (isUserPageUrlConfigured) {
+                adminStatus.textContent = 'Error loading links: ' + error.message;
+            }
+            linksList.innerHTML = '<li>Failed to load links. Please check Firebase console/rules.</li>';
+            console.error("Firebase load error:", error);
+        });
+    }
+
+
+    // --- On load ---
+    document.addEventListener('DOMContentLoaded', () => {
+         checkLogin(); // Check login state when the page loads
+         // setupAdminDashboard is called after checkLogin if user is logged in
+         // loadLinks is called inside setupAdminDashboard (conditionally based on URL config)
+    });
+
+
+  </script>
+</body>
+</html>
